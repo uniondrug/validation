@@ -166,4 +166,16 @@ class Param extends \stdClass
         // 4. 返回结果(数组格式，可以用于直接初始化结构体)
         return $data;
     }
+
+    /**
+     * @param $data
+     * @param $rules
+     *
+     * @return array
+     * @throws \Uniondrug\Validation\Exceptions\ParamException
+     */
+    public function checkInput($data, $rules)
+    {
+        return static::check($data, $rules);
+    }
 }
