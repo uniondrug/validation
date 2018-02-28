@@ -1,4 +1,4 @@
-# Cache component for uniondrug/framework
+# Validation component for uniondrug/framework
 
 ## 安装
 
