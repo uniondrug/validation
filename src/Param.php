@@ -214,11 +214,7 @@ class Param
      * 从注解中解析规则
      *
      * 支持如下注解：
-     * @Validator("name")                   定义验证器
-     * @Required()                          定义是否必须
-     * @Empty()                             定义是否可以为空
-     * @Options(key="value",key2="value2")  定义传递给验证器的参数
-     * @Filters(filter1, filter2)           定义过滤器
+     * @Validator(type=int,default=5,required=true,empty=true,filter={abc,def},options={min=5,max=10})
      *
      * @param string $className 结构体类名
      *
