@@ -23,6 +23,7 @@ use Phalcon\Validation\Validator\Numericality;
 use Phalcon\Validation\Validator\Regex;
 use Phalcon\Validation\Validator\StringLength;
 use Phalcon\Validation\Validator\Url;
+use Phalcon\Validation\ValidatorInterface;
 use Uniondrug\Structs\StructInterface;
 use Uniondrug\Validation\Exceptions\ParamException;
 use Uniondrug\Validation\Validators\DatetimeValidator;
@@ -41,6 +42,8 @@ use Uniondrug\Validation\Validators\TimeValidator;
  */
 class Param
 {
+    const ANNOTATION_NAME = 'Validator';
+
     /**
      * @var array 验证类型与类关系
      */
@@ -162,10 +165,6 @@ class Param
             if (!is_array($rule) || !isset($rule['type'])) {
                 throw new ParamException("字段 '{$key}' 的规则定义不合法", 20000);
             }
-            $type = strtolower($rule['type']);
-            if (!isset(static::$validatorConfig[$type])) {
-                throw new ParamException("规则 '{$type}' 未定义", 20000);
-            }
 
             // 1.3 附加默认值
             if (!isset($data[$key]) && isset($rule['default'])) {
@@ -194,7 +193,21 @@ class Param
             }
             $options['cancelOnFail'] = true; // 遇到一个验证不通过，直接跳出验证
             if (!empty($data[$key])) { // 空值不需要验证
-                $validation->add($key, new static::$validatorConfig[$type]($options));
+                $types = $rule['type'];
+                if (!is_array($rule['type'])) {
+                    $types = [$rule['type']];
+                }
+                foreach ($types as $validatorName) {
+                    $typeName = strtolower($validatorName);
+                    if (isset(static::$validatorConfig[$typeName])) {
+                        $validatorClass = static::$validatorConfig[$typeName];
+                    } else if (is_a($validatorName, ValidatorInterface::class, true)) {
+                        $validatorClass = $validatorName;
+                    } else {
+                        throw new ParamException("规则 '{$validatorName}' 未定义", 20000);
+                    }
+                    $validation->add($key, new $validatorClass($options));
+                }
             }
         }
 
@@ -239,8 +252,8 @@ class Param
             if ($className::reserved($property)) {
                 continue;
             }
-            if ($annotations->has('Validator')) {
-                $validatorAnnotation = $annotations->get('Validator');
+            if ($annotations->has(static::ANNOTATION_NAME)) {
+                $validatorAnnotation = $annotations->get(static::ANNOTATION_NAME);
                 $rules[$property]= $validatorAnnotation->getArguments();
             }
         }
