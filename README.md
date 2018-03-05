@@ -9,7 +9,7 @@ $ cd project-home
 $ composer require uniondrug/validation
 ```
 
-修改 `app.php` 配置文件
+修改 `app.php` 配置文件，注入服务。服务名称：`validationService`。
 
 ```php
 return [
