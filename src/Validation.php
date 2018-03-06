@@ -181,21 +181,13 @@ class Validation extends PhalconValidation
     }
 
     /**
-     * 是否有错误
+     * 是否有错误, 通过检测错误消息的数量是否大于0
      *
      * @return bool
      */
     public function hasFailure()
     {
-        $has = false;
-        foreach ($this->stats as $stat) {
-            if ($stat['validators'] === $stat['failures']) {
-                $has = true;
-                break;
-            }
-        }
-
-        return $has;
+        return $this->getMessages()->count() > 0;
     }
 
     /**

@@ -1,28 +1,32 @@
 {
-    "name" : "uniondrug/validation",
-    "description" : "validator component for uniondrug/framework",
-    "keywords" : [
-        "phalcon",
-		"validator"
-    ],
-    "license" : "proprietary",
-    "type" : "library",
-    "authors" : [
-        {
-            "name" : "Uniondrug Dev Team",
-            "email" : "dev@uniondrug.cn"
-        }
-    ],
-    "require" : {
-		"uniondrug/framework": "^2.0"
-	},
-    "autoload" : {
-        "psr-4" : {
-            "Uniondrug\\Validation\\" : "src/"
-        }
-    },
-    "config" : {
-        "preferred-install" : "dist",
-        "sort-packages" : true
+  "name": "uniondrug/validation",
+  "description": "validator component for uniondrug/framework",
+  "keywords": [
+    "phalcon",
+    "validator"
+  ],
+  "license": "proprietary",
+  "type": "library",
+  "authors": [
+    {
+      "name": "Uniondrug Dev Team",
+      "email": "dev@uniondrug.cn"
     }
+  ],
+  "require": {
+    "uniondrug/framework": "^2.0",
+    "uniondrug/structs": "^2.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Uniondrug\\Validation\\": "src/"
+    }
+  },
+  "suggests": {
+    "dragonmantank/cron-expression": "Required by cron expression validator"
+  },
+  "config": {
+    "preferred-install": "dist",
+    "sort-packages": true
+  }
 }

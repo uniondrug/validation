@@ -23,6 +23,8 @@ use Phalcon\Validation\Validator\Numericality;
 use Phalcon\Validation\Validator\Regex;
 use Phalcon\Validation\Validator\StringLength;
 use Phalcon\Validation\Validator\Url;
+use Phalcon\Validation\ValidatorInterface;
+use Uniondrug\Structs\StructInterface;
 use Uniondrug\Validation\Exceptions\ParamException;
 use Uniondrug\Validation\Validators\DatetimeValidator;
 use Uniondrug\Validation\Validators\DateValidator;
@@ -38,8 +40,10 @@ use Uniondrug\Validation\Validators\TimeValidator;
 /**
  * 参数检查, 运行以下类型
  */
-class Param extends \stdClass
+class Param
 {
+    const ANNOTATION_NAME = 'Validator';
+
     /**
      * @var array 验证类型与类关系
      */
@@ -72,6 +76,44 @@ class Param extends \stdClass
     ];
 
     /**
+     * 实例化调用方法
+     *
+     * @param array|object $data
+     * @param array|string $rules
+     *
+     * @return array|StructInterface
+     * @throws \Uniondrug\Validation\Exceptions\ParamException
+     */
+    public function checkInput($data, $rules)
+    {
+        return static::check($data, $rules);
+    }
+
+    /**
+     * 静态调用方法
+     *
+     * @param array|object $data
+     * @param array|string $rules
+     *
+     * @return array|StructInterface
+     * @throws \Uniondrug\Validation\Exceptions\ParamException
+     */
+    public static function check($data, $rules)
+    {
+        $className = null;
+        if (is_string($rules) && is_a($rules, StructInterface::class, true)) {
+            $className = $rules;
+            $rules = static::parseStruct($rules);
+        }
+        $data = static::validate($data, $rules);
+        if ($className) {
+            return $className::factory($data);
+        }
+
+        return $data;
+    }
+
+    /**
      * 参数检查
      * <code>
      * // 以下示例应用于Controller
@@ -94,10 +136,10 @@ class Param extends \stdClass
      * @param array|object $input 数组或者JSON格式的RAW对象
      * @param array        $rules JSON
      *
-     * @return array
+     * @return array|\Uniondrug\Structs\StructInterface
      * @throws \Uniondrug\Validation\Exceptions\ParamException
      */
-    public static function check($input, $rules)
+    protected static function validate($input, $rules)
     {
         $validation = new Validation();
         $filter = Di::getDefault()->has('filter') ? Di::getDefault()->get('filter') : new Filter();
@@ -121,11 +163,7 @@ class Param extends \stdClass
 
             // 1.2 检查规则定义是否正确
             if (!is_array($rule) || !isset($rule['type'])) {
-                throw new ParamException("字段 '{$key}' 的规则定义不合法");
-            }
-            $type = strtolower($rule['type']);
-            if (!isset(static::$validatorConfig[$type])) {
-                throw new ParamException("规则 '{$type}' 未定义");
+                throw new ParamException("字段 '{$key}' 的规则定义不合法", 20000);
             }
 
             // 1.3 附加默认值
@@ -135,12 +173,12 @@ class Param extends \stdClass
 
             // 1.4 处理必填
             if (isset($rule['required']) && $rule['required'] && !isset($data[$key])) {
-                throw new ParamException("字段 '{$key}' 必填");
+                throw new ParamException("字段 '{$key}' 必填", 10000);
             }
 
             // 1.5 空值检查
             if (empty($data[$key]) && (!isset($rule['empty']) || !$rule['empty'])) {
-                throw new ParamException("字段 '{$key}' 不能为空");
+                throw new ParamException("字段 '{$key}' 不能为空", 10000);
             }
 
             // 1.6 过滤入参（对一些不合法字符调用过滤器处理）
@@ -149,9 +187,27 @@ class Param extends \stdClass
             }
 
             // 1.7 加入验证
-            $rule['cancelOnFail'] = true; // 遇到一个验证不通过，直接跳出验证
+            $options = isset($rule['options']) ? $rule['options'] : $rule;
+            if (!is_array($options)) {
+                $options = [$options];
+            }
+            $options['cancelOnFail'] = true; // 遇到一个验证不通过，直接跳出验证
             if (!empty($data[$key])) { // 空值不需要验证
-                $validation->add($key, new static::$validatorConfig[$type]($rule));
+                $types = $rule['type'];
+                if (!is_array($rule['type'])) {
+                    $types = [$rule['type']];
+                }
+                foreach ($types as $validatorName) {
+                    $typeName = strtolower($validatorName);
+                    if (isset(static::$validatorConfig[$typeName])) {
+                        $validatorClass = static::$validatorConfig[$typeName];
+                    } else if (is_a($validatorName, ValidatorInterface::class, true)) {
+                        $validatorClass = $validatorName;
+                    } else {
+                        throw new ParamException("规则 '{$validatorName}' 未定义", 20000);
+                    }
+                    $validation->add($key, new $validatorClass($options));
+                }
             }
         }
 
@@ -160,10 +216,48 @@ class Param extends \stdClass
 
         // 3. 验证过程有错误
         if ($validation->hasFailure()) {
-            throw new ParamException($validation->getFailureMessage());
+            throw new ParamException($validation->getFailureMessage(), 10000);
         }
 
         // 4. 返回结果(数组格式，可以用于直接初始化结构体)
         return $data;
+    }
+
+    /**
+     * 从注解中解析规则
+     *
+     * 支持如下注解：
+     * @Validator(type=int,default=5,required=true,empty=true,filter={abc,def},options={min=5,max=10})
+     *
+     * @param string $className 结构体类名
+     *
+     * @return array
+     */
+    protected static function parseStruct($className)
+    {
+        /**
+         * 从结构体字段中获取注解，完成规则定义
+         *
+         * @Validator(type=int,default=5,required=true,empty=true,filter={abc,def},options={min=5,max=10})
+         *
+         * 结构体的字段默认值会自动当做验证字段的默认值。
+         *
+         */
+
+        /* @var \Phalcon\Annotations\Reflection $structAnnotation */
+        $rules = [];
+        $structAnnotation = Di::getDefault()->getShared('annotations')->get($className);
+        foreach ($structAnnotation->getPropertiesAnnotations() as $property => $annotations) {
+            /* @var \Phalcon\Annotations\Collection $annotations */
+            if ($className::reserved($property)) {
+                continue;
+            }
+            if ($annotations->has(static::ANNOTATION_NAME)) {
+                $validatorAnnotation = $annotations->get(static::ANNOTATION_NAME);
+                $rules[$property]= $validatorAnnotation->getArguments();
+            }
+        }
+
+        return $rules;
     }
 }
