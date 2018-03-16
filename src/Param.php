@@ -42,12 +42,10 @@ use Uniondrug\Validation\Validators\TimeValidator;
  */
 class Param
 {
-    const ANNOTATION_NAME = 'Validator';
-
     /**
      * @var array 验证类型与类关系
      */
-    static $validatorConfig = [
+    protected static $validatorConfig = [
         'alnum'     => Alnum::class,
         'alpha'     => Alpha::class,
         'digit'     => Digit::class,
@@ -100,15 +98,7 @@ class Param
      */
     public static function check($data, $rules)
     {
-        $className = null;
-        if (is_string($rules) && is_a($rules, StructInterface::class, true)) {
-            $className = $rules;
-            $rules = static::parseStruct($rules);
-        }
         $data = static::validate($data, $rules);
-        if ($className) {
-            return $className::factory($data);
-        }
 
         return $data;
     }
@@ -221,43 +211,5 @@ class Param
 
         // 4. 返回结果(数组格式，可以用于直接初始化结构体)
         return $data;
-    }
-
-    /**
-     * 从注解中解析规则
-     *
-     * 支持如下注解：
-     * @Validator(type=int,default=5,required=true,empty=true,filter={abc,def},options={min=5,max=10})
-     *
-     * @param string $className 结构体类名
-     *
-     * @return array
-     */
-    protected static function parseStruct($className)
-    {
-        /**
-         * 从结构体字段中获取注解，完成规则定义
-         *
-         * @Validator(type=int,default=5,required=true,empty=true,filter={abc,def},options={min=5,max=10})
-         *
-         * 结构体的字段默认值会自动当做验证字段的默认值。
-         *
-         */
-
-        /* @var \Phalcon\Annotations\Reflection $structAnnotation */
-        $rules = [];
-        $structAnnotation = Di::getDefault()->getShared('annotations')->get($className);
-        foreach ($structAnnotation->getPropertiesAnnotations() as $property => $annotations) {
-            /* @var \Phalcon\Annotations\Collection $annotations */
-            if ($className::reserved($property)) {
-                continue;
-            }
-            if ($annotations->has(static::ANNOTATION_NAME)) {
-                $validatorAnnotation = $annotations->get(static::ANNOTATION_NAME);
-                $rules[$property]= $validatorAnnotation->getArguments();
-            }
-        }
-
-        return $rules;
     }
 }
