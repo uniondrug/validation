@@ -127,12 +127,11 @@ class IndexController extents Controller
     public function indexAction()
     {
         try {
-            $data = $this->validationService->checkInput($this->request->get(), ApiRequestStruct::class);
+            $apiStruct = ApiRequestStruct::factory($this->request->get());
             return $this->serviceServer->withObject($data->toArray())->response();
         } catch (\Exception $e) {
             return $this->serviceServer->withError($e->getMessage(), $e->getCode())->response();
         }
-
 
         ....
     }
