@@ -167,7 +167,7 @@ class Param
             }
 
             // 1.5 空值检查
-            if (empty($data[$key]) && (!isset($rule['empty']) || !$rule['empty'])) {
+            if (empty($data[$key]) && (!isset($rule['empty']) || '' === $rule['empty'])) {
                 throw new ParamException("字段 '{$key}' 不能为空", 10000);
             }
 
@@ -182,7 +182,7 @@ class Param
                 $options = [$options];
             }
             $options['cancelOnFail'] = true; // 遇到一个验证不通过，直接跳出验证
-            if (!empty($data[$key])) { // 空值不需要验证
+            if ($data[$key] !== null && $data[$key] !== '') { // 空值不需要验证
                 $types = $rule['type'];
                 if (!is_array($rule['type'])) {
                     $types = [$rule['type']];
