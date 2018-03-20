@@ -167,7 +167,7 @@ class Param
             }
 
             // 1.5 空值检查
-            if (empty($data[$key]) && (!isset($rule['empty']) || !$rule['empty'])) {
+            if (empty($data[$key]) && (!isset($rule['empty']) || '' === $rule['empty'])) {
                 throw new ParamException("字段 '{$key}' 不能为空", 10000);
             }
 
