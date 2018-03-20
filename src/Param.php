@@ -182,7 +182,7 @@ class Param
                 $options = [$options];
             }
             $options['cancelOnFail'] = true; // 遇到一个验证不通过，直接跳出验证
-            if (!empty($data[$key])) { // 空值不需要验证
+            if ($data[$key] !== null && $data[$key] !== '') { // 空值不需要验证
                 $types = $rule['type'];
                 if (!is_array($rule['type'])) {
                     $types = [$rule['type']];
