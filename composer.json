@@ -1,6 +1,6 @@
 {
   "name": "uniondrug/validation",
-  "description": "validator component for uniondrug/framework",
+  "description": "Uniondrug Validation Component for uniondrug/framework",
   "keywords": [
     "phalcon",
     "validator"
