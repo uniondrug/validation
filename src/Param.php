@@ -26,6 +26,7 @@ use Phalcon\Validation\Validator\Url;
 use Phalcon\Validation\ValidatorInterface;
 use Uniondrug\Structs\StructInterface;
 use Uniondrug\Validation\Exceptions\ParamException;
+use Uniondrug\Validation\Validators\BooleanValidator;
 use Uniondrug\Validation\Validators\DatetimeValidator;
 use Uniondrug\Validation\Validators\DateValidator;
 use Uniondrug\Validation\Validators\DoubleValidator;
@@ -48,6 +49,8 @@ class Param
     protected static $validatorConfig = [
         'alnum'     => Alnum::class,
         'alpha'     => Alpha::class,
+        'bool'     => BooleanValidator::class,
+        'boolean'     => BooleanValidator::class,
         'digit'     => Digit::class,
         'json'      => JsonValidator::class,
         'url'       => Url::class,
