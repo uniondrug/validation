@@ -168,6 +168,12 @@ class Param
             if (isset($rule['required']) && $rule['required'] && !isset($data[$key])) {
                 throw new ParamException("字段 '{$key}' 必填", 10000);
             }
+            /*
+            //1.4.1 增强处理必填
+            if (isset($rule['required']) && $rule['required'] && (trim($data[$key]) == "")) {
+                throw new ParamException("字段 '{$key}' 必填", 10000);
+            }
+            */
 
             // 1.5 空值检查
             if (empty($data[$key]) && $rule['empty'] === false) {
