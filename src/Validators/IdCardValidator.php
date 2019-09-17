@@ -23,7 +23,7 @@ use Uniondrug\Validation\Validator;
  */
 class IdCardValidator extends Validator
 {
-    private static $IDRe18 = "/^([1-6][1-9]|50)\d{4}(18|19|20)\d{2}((0[1-9])|10|11|12)(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$";
+    private static $IDRe18 = "/^([1-6][1-9]|50)\d{4}(18|19|20)\d{2}((0[1-9])|10|11|12)(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/";
     private static $IDre15 = "/^([1-6][1-9]|50)\d{4}\d{2}((0[1-9])|10|11|12)(([0-2][1-9])|10|20|30|31)\d{3}$/";
 
     /**
