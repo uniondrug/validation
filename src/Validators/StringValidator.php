@@ -105,7 +105,7 @@ class StringValidator extends Validator
         // 6.2 最大字符长度
         $maxChar = $this->getOption('maxChar');
         if (is_numeric($maxChar) && $maxChar > 0 && $charLen > $maxChar) {
-            $validation->appendMessage(new Message("参数'{$attribute}'的值的长度不能少于'{$maxChar}'个字", $attribute));
+            $validation->appendMessage(new Message("参数'{$attribute}'的值的长度不能多于'{$maxChar}'个字", $attribute));
 
             return false;
         }

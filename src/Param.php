@@ -35,6 +35,7 @@ use Uniondrug\Validation\Validators\IntegerValidator;
 use Uniondrug\Validation\Validators\JsonValidator;
 use Uniondrug\Validation\Validators\MobileValidator;
 use Uniondrug\Validation\Validators\MoneyValidator;
+use Uniondrug\Validation\Validators\MonthValidator;
 use Uniondrug\Validation\Validators\StringValidator;
 use Uniondrug\Validation\Validators\TelphoneValidator;
 use Uniondrug\Validation\Validators\TimeValidator;
@@ -50,8 +51,8 @@ class Param
     protected static $validatorConfig = [
         'alnum'     => Alnum::class,
         'alpha'     => Alpha::class,
-        'bool'     => BooleanValidator::class,
-        'boolean'     => BooleanValidator::class,
+        'bool'      => BooleanValidator::class,
+        'boolean'   => BooleanValidator::class,
         'digit'     => Digit::class,
         'json'      => JsonValidator::class,
         'url'       => Url::class,
@@ -70,7 +71,8 @@ class Param
         'int'       => IntegerValidator::class,
         'integer'   => IntegerValidator::class,
         'mobile'    => MobileValidator::class,
-        'money'    => MoneyValidator::class,
+        'money'     => MoneyValidator::class,
+        'month'     => MonthValidator::class,
         'string'    => StringValidator::class,
         'telphone'  => TelphoneValidator::class,
         'time'      => TimeValidator::class,
