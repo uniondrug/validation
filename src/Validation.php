@@ -76,6 +76,7 @@ class Validation extends PhalconValidation
             "Crontab" => "字段 :field 不是一个有效的Crontab格式",
             "Json" => "字段 :field 不是有一个有效的JSON: :err",
             "Callback" => "字段 :field 不合法",
+            "IdCard" => "字段 :field 必须是一个有效的身份证号",
         ]);
     }
 
