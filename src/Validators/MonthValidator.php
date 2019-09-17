@@ -6,12 +6,13 @@
  */
 namespace Uniondrug\Validation\Validators;
 
-use Uniondrug\Validation\Validation;
+use Phalcon\Validation\Message;
+use Uniondrug\Validation\Validator;
 
 /**
  * @package Uniondrug\Validation\Validators
  */
-class MonthValidator extends Validation
+class MonthValidator extends Validator
 {
     private static $regexp = "/^\d{4}[\-|\/|\.](0?[1-9]|1[012])$/";
 
